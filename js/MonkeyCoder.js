@@ -1,6 +1,10 @@
 import { Generation } from "./Generation.js"
 import { TrainingSet } from './TrainingSet.js'
 
+/**
+ * Represents a monkey coder.
+ * @constructor
+ */
 class MonkeyCoder{
     constructor (view) {
         this.autoEvolve = true
@@ -30,6 +34,10 @@ class MonkeyCoder{
             val: this._status
         })
     }
+    /**
+     * Assign a configuration to the coder.
+     * @param {Object} config 
+     */
     assignConfig (config) {
         var coder = {
             autoEvolve : config.autoEvolve,
@@ -64,6 +72,9 @@ class MonkeyCoder{
             }
         }
     }
+    /**
+     * Start evolution.
+     */
     evolve () {
         // TODO : send back an error message to view
         if (!this.trainingSets.length) return
@@ -77,11 +88,19 @@ class MonkeyCoder{
             this.status = 'idle'
         }
     }
+    /**
+     * Event handler for selectInputsButton change event.
+     * @param {*} event 
+     */
     selectInputsButtonChange (event) {
         event.stopPropagation()
         console.log('selectInputsButtonChange', event)
         this.trainingSets.push(new TrainingSet(event.target.files[0], {min : 32, max : 127}))
     }
+    /**
+     * Event handler for startButton click event.
+     * @param {*} event 
+     */
     startButtonClick (event) {
         event.stopPropagation()
         console.log('startButtonClick', event)
