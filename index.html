@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>monkey-coder</title>
+    <!-- w3css -->
+    <link href="https://www.w3schools.com/w3css/4/w3.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+    <!-- Font awesome -->
+    <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+    <script defer src="https://use.fontawesome.com/releases/v5.10.2/js/all.js"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.10.2/js/v4-shims.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- sheetjs -->
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <!-- synaptic -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/synaptic/1.1.4/synaptic.js"></script>
+    <!-- monkey coder -->
+    <script type="module" src="main.js"></script>
+</head>
+<body>
+    <div class="w3-row">
+        <!-- Config -->
+        <div class="w3-col m4 l3">
+            <form action="#" class="w3-container w3-padding" id="monkeyConfigForm">
+                <label class="w3-label" for="maxGenerations">Generations</label>
+                <input class="w3-input" type="text" name="maxGenerations" placeholder="64">
+                <label class="w3-label" for="maxMonkeys">Monkeys</label>
+                <input class="w3-input" type="text" name="maxMonkeys" placeholder="32">
+                <label class="w3-label" for="brainLayers">Layers</label>
+                <input class="w3-input" type="text" name="layers" placeholder="[1, 4, 4, 1]">
+                <label class="w3-label" for="learningRate">Learning Rate</label>
+                <input class="w3-input" type="text" name="learningRate" placeholder="0.2">
+                <label class="w3-label" for="maxCode">Max Code Len</label>
+                <input class="w3-input" type="text" name="codeLen" placeholder="16">
+                <label class="w3-label" for="minError">Min Error</label>
+                <input class="w3-input" type="text" name="minError" placeholder="0.03">
+                <br>
+                <label for="autoEvolve">Auto evolve</label>
+                <input type="checkbox" name="autoEvolve" value="true" checked>
+                <label class="w3-button w3-block" for="selectInputsButton">Select inputs</label>
+                <input id="selectInputsButton" name="selectInputsButton" style="opacity: 0; position: absolute; z-index: -1;" type="file">
+                <input class="w3-button w3-block" id="startButton" type="button" value="Start">
+            </form>
+        </div>
+        <!-- Interpreter -->
+        <div class="w3-col m8 l9">
+            
+        </div>
+    </div>
+    <div class="w3-row">
+        <!-- Performance -->
+        <div class="w3-col m4 l3">
+            <div class="w3-grey w3-margin">
+                <div class="w3-container w3-center w3-padding w3-red" id="statusBar" style="width:100%">idle</div>
+            </div>
+            <div class="w3-grey w3-margin">
+                <div class="w3-container w3-center w3-padding w3-orange" id="monkeyBar" style="width:100%">ipsum</div>
+            </div>
+        </div>
+        <!-- Elite -->
+        <div class="w3-col m8 l9">
+            <table class="w3-table w3-striped w3-white" id="eliteMonkeys">
+                <thead>
+                    <tr>
+                        <th>type</th>
+                        <th>code</th>
+                        <th>error</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><i class="fa fa-user w3-text-blue w3-large"></i></td>
+                        <td>New record, over 90 views.</td>
+                        <td><i>10 mins</i></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
