@@ -29,7 +29,7 @@ class MonkeyCoder{
     }
     set status (val) {
         this._status = val
-        this.view.dispatch('update', {
+        this.view.post('update', {
             id :'statusBar',
             val: this._status
         })
@@ -81,7 +81,7 @@ class MonkeyCoder{
         if (this.generations.length < this.maxGenerations) {
             // TODO : reproduce elite
             var next = new Generation(this.maxMonkeys, this.monkeyConfig, this.trainingSets[0])
-            next.on('update', this.update, this)
+            //next.on('update', this.update, this)
             next.evolve()
             this.generations.push(next)
         }else{

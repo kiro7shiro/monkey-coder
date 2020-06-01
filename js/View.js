@@ -1,21 +1,30 @@
-import { Messanger } from './Messanger.js'
+import { Messanger } from './js-events/Messanger.js'
 
+/**
+ * Monkey coders view. This represents the html page loaded in the browser.
+ * It's purpose is to provide functionallity for manipulating the DOM.
+ * @constructor
+ */
 class View extends Messanger {
     constructor () {
         super()
         document.querySelectorAll('[id]').forEach(element => {
             this[element.id] = element
             element.addEventListener('click', event => {
-                this.dispatch('click', event)
-                this.dispatch(event.target.id + 'Click', event)
+                this.post('click', event)
+                this.post(event.target.id + 'Click', event)
             })
             element.addEventListener('change', event => {
-                this.dispatch('change', event)
-                this.dispatch(event.target.id + 'Change', event)
+                this.post('change', event)
+                this.post(event.target.id + 'Change', event)
             })
         }, this)
         this.on('update', this.update, this)
     }
+    /**
+     * Read a forms data and return an object with the values.
+     * @param {String} id The id attribute of the form to read.
+     */
     readForm (id) {
         if (this[id]) {
             const data = new FormData(this[id])
@@ -26,6 +35,10 @@ class View extends Messanger {
         }
         return result
     }
+    /**
+     * Perform a view update
+     * @param {Object} data 
+     */
     update (data) {
         if (!data) return
         let {id, val, css} = data

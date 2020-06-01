@@ -1,3 +1,7 @@
+/**
+ * Represents a normalized data.
+ * @constructor
+ */
 class Normalized {
     constructor (data, {min = 0, max = 1} = {}) {
         this.vector = []

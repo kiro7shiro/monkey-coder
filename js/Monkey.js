@@ -1,4 +1,4 @@
-import { Brainfuck } from './Brainfuck.js'
+import { Brainfuck } from './js-brainfuck/Brainfuck.js'
 
 let brain = undefined
 let brainfuck = new Brainfuck()
@@ -93,7 +93,7 @@ function findTargetCommand() {
 
 onmessage = function (message) {
     let {command, data} = message.data
-    // console.log('monkey', {command, data})
+    console.log('monkey', {command, data})
     switch (command) {
         case 'evolve':
             if (!config) config = data.config

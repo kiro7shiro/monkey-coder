@@ -1,3 +1,7 @@
+/**
+ * Monkey Coder 0.1
+ */
+
 import { View } from "./js/View.js"
 import { MonkeyCoder } from "./js/MonkeyCoder.js"
 

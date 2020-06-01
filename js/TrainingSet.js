@@ -1,5 +1,9 @@
 import { Normalized } from "./Normalized.js"
 
+/**
+ * Represents a set of training data for the monkeys.
+ * @constructor
+ */
 class TrainingSet {
     constructor (file, scale = {min = 0, max = 1} = {}) {
         this.data = []
@@ -9,6 +13,10 @@ class TrainingSet {
 
         this.read(file)
     }
+    /**
+     * Read a xlsx file an load it's data.
+     * @param {*} file 
+     */
     read (file) {
         var self = this
         var reader = new FileReader()
