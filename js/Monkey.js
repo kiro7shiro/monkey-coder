@@ -1,3 +1,6 @@
+/**
+ * Represents a monkey.
+ */
 import { Brainfuck } from './js-brainfuck/Brainfuck.js'
 
 let brain = undefined
@@ -10,6 +13,10 @@ let inpCnt = 0
 let lastStep = undefined
 let targetCommand = undefined
 
+/**
+ * Callback for brains worker.
+ * @param {Object} message 
+ */
 function brainOnMessage(message) {
     let {command, data} = message.data
     // console.log('monkeys brain', {command, data})
@@ -20,7 +27,6 @@ function brainOnMessage(message) {
             let history = brainfuck.interpreter.history
             error = calcError(output, history)
             findTargetCommand()
-            
             break
         case 'evolve':
             postMessage({
@@ -35,6 +41,11 @@ function brainOnMessage(message) {
     }
 }
 
+/**
+ * Calculate the error of the current output
+ * @param {Array} output 
+ * @param {Array} history 
+ */
 function calcError(output, history) {
     if (!output.length) output.push(0)
     let err = 0
@@ -64,6 +75,10 @@ function calcError(output, history) {
     return err
 }
 
+/**
+ * Find a command that has a lower error than the last or
+ * set targetCommand to a random command.
+ */
 function findTargetCommand() {
     targetCommand = undefined
     let lastCmd = code.splice(-1, 1)
@@ -91,6 +106,9 @@ function findTargetCommand() {
     })
 }
 
+/**
+ * Callback for monkeys worker.
+ */
 onmessage = function (message) {
     let {command, data} = message.data
     console.log('monkey', {command, data})
