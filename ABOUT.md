@@ -12,9 +12,25 @@ TODOS:
 ## Generation
 A generation holds an array of monkeys and provides an interface for controlling the evolution process.
 
+- evolve() : The evolve function starts the evolution and controls it. It generates a worker for the monkeys and sends and recieves data from them.
+- onerror(message) : Callback for monkeys worker.
+- onmessage(message) : Callback for monkeys worker.
+
 ## Monkey
 Monkeys are the agents of this program and try to solve problems by generating brainfuck code. For that they include a neural network that can learn over time to produce better commands.
 They hold a genome that can be used to produce an offspring monkey.
+
+- program flow : 
+    - switch input
+    - activate brain
+    - make code
+    - calc error
+    - find target command
+    - train brain
+    - send update
+
+## Brain
+The brain of a monkey is a neural network. Due to the high demand of process power a network could possibly have. I decide to export this into an extra worker. 
 
 ## TrainingSet
 This represents the training data that is used to evolve the monkeys. Usally this is a table where the last filled cell of a row represents the target output. Every cell before that is desiered as input.
