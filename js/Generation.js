@@ -1,8 +1,8 @@
 import { Messanger } from './js-events/Messanger.js'
 
-class Generation {
+class Generation extends Messanger {
     constructor (maxMonkeys, monkeyConfig, trainingSet) {
-        //super()
+        super()
         this.done = 0
         this.elite = []
         this.maxMonkeys = maxMonkeys
@@ -28,10 +28,10 @@ class Generation {
     }
     onmessage (message) {
         let {command, data} = message.data
-        console.log('generation', {command, data})
+        // console.log('generation', {command, data})
         switch (command) {
             case 'update':
-                // this.post('update', data)
+                this.post('update', data)
                 break
         }
     }

@@ -1,3 +1,5 @@
+import { ExecuteError, TYPES } from './ExecuteError.js'
+
 class Interpreter {
     constructor () {
         this.code = []
@@ -27,8 +29,8 @@ class Interpreter {
                 this.memory[this.memPtr] += command.repeat + 1
                 break
             case 'jump':
-                // jumps back, after the next loop command, if cell is not zero or undefined
-                if (this.memory[this.memPtr] != 0 && this.memory[this.memPtr] != undefined) {
+                // jumps back, after the next loop command, if cell is not undefined
+                if (this.memory[this.memPtr]) {
                     // find last loop, search backwards
                     var found = false
                     for (var stpCnt = this.step; stpCnt >= 0; stpCnt--) {
@@ -42,7 +44,7 @@ class Interpreter {
                     }
                     if (!found) {
                         console.log(this.code)
-                        throw new Error('jump without loop')
+                        throw new ExecuteError('jump without loop', TYPES.JUMP_WITHOUT_LOOP)
                     }
                 }
                 break
@@ -51,8 +53,8 @@ class Interpreter {
                 if (this.memPtr < 0) this.memPtr = this.memory.length - 1
                 break
             case 'loop':
-                // jumps forward, after the next jump command, if cell is zero
-                if (this.memory[this.memPtr] === 0) {
+                // jumps forward, after the next jump command, if cell is undefiend
+                if (!this.memory[this.memPtr]) {
                     // find next jump
                     var found = false
                     for (let stpCnt = this.step; stpCnt < this.code.length; stpCnt++) {
@@ -64,7 +66,7 @@ class Interpreter {
                         }
                         if (!found) {
                             console.log(this.code)
-                            throw new Error('loop without jump')
+                            throw new ExecuteError('loop without jump', TYPES.LOOP_WITHOUT_JUMP)
                         }
                     }
 

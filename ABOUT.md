@@ -1,0 +1,24 @@
+# MonkeyCoder 0.1
+
+The coder represents the application to which the user interacts through the page ui. It spawns the first generation of monkeys and supervieses the evolving process.
+
+TODOS:
+- ability to manipulate the evolving process through change parameters in the ui, includes the mvc pattern, too.
+- provide visual feedback to the user about the evolution process
+    - status bar
+    - table of monkeys
+    - interpret best code
+
+## Generation
+A generation holds an array of monkeys and provides an interface for controlling the evolution process.
+
+## Monkey
+Monkeys are the agents of this program and try to solve problems by generating brainfuck code. For that they include a neural network that can learn over time to produce better commands.
+They hold a genome that can be used to produce an offspring monkey.
+
+## TrainingSet
+This represents the training data that is used to evolve the monkeys. Usally this is a table where the last filled cell of a row represents the target output. Every cell before that is desiered as input.
+For convience it provides functionallty to load Excel files.
+
+## Normalized
+Reperesents normalized training data. Usally neural networks only process input values between 0 and 1. For that any human readable input has to be converted. This class provides an interface for setting up such conversion.

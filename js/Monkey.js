@@ -111,7 +111,7 @@ function findTargetCommand() {
  */
 onmessage = function (message) {
     let {command, data} = message.data
-    console.log('monkey', {command, data})
+    // console.log('monkey', {command, data})
     switch (command) {
         case 'evolve':
             if (!config) config = data.config

@@ -76,12 +76,11 @@ class MonkeyCoder{
      * Start evolution.
      */
     evolve () {
-        // TODO : send back an error message to view
         if (!this.trainingSets.length) return
         if (this.generations.length < this.maxGenerations) {
             // TODO : reproduce elite
             var next = new Generation(this.maxMonkeys, this.monkeyConfig, this.trainingSets[0])
-            //next.on('update', this.update, this)
+            next.on('update', this.update, this)
             next.evolve()
             this.generations.push(next)
         }else{

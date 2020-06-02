@@ -6,7 +6,7 @@ let input = undefined
 
 onmessage = function(message) {
     let {command, data} = message.data
-    console.log('brain', {command, data})
+    // console.log('brain', {command, data})
     switch (command) {
         case 'activate':
             if (!config) config = data.config

@@ -117,4 +117,4 @@ class Brainfuck {
     }
 }
 
-export { Brainfuck }
+export { Brainfuck, LANGUAGE }
