@@ -18,6 +18,7 @@ class Generation extends Messanger {
             command : 'evolve',
             data : {
                 config : this.monkeyConfig,
+                id : this.monkeys.length,
                 inputs : this.trainingSet.data
             }
         })

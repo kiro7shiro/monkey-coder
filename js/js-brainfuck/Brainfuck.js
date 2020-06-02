@@ -56,9 +56,8 @@ const LANGUAGE = {
 }
 
 class Brainfuck {
-    constructor (lang) {
-        this.lang = lang || LANGUAGE
-
+    constructor () {
+        this.lang = LANGUAGE
         this.code = []
         this.commands = this.lang.commands
         this.current = []
@@ -117,4 +116,4 @@ class Brainfuck {
     }
 }
 
-export { Brainfuck, LANGUAGE }
+export { Brainfuck }

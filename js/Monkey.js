@@ -2,12 +2,14 @@
  * Represents a monkey.
  */
 import { Brainfuck } from './js-brainfuck/Brainfuck.js'
+import { ExecuteError } from './js-brainfuck/ExecuteError.js'
 
 let brain = undefined
 let brainfuck = new Brainfuck()
 let code = []
 let config = undefined
 let error = 0
+let id = -1
 let inputs = []
 let inpCnt = 0
 let lastStep = undefined
@@ -23,7 +25,7 @@ function brainOnMessage(message) {
     switch (command) {
         case 'makeCode':
             code.push(...brainfuck.decode(data))
-            let output = brainfuck.run(code, inputs[inpCnt].code)
+            let output = execute()
             let history = brainfuck.interpreter.history
             error = calcError(output, history)
             findTargetCommand()
@@ -33,6 +35,7 @@ function brainOnMessage(message) {
                 command : 'update',
                 data: {code: code.join(''), error}
             })
+            // redirect call saves code lines ;)
             onmessage(message)
             break
         default:
@@ -55,7 +58,7 @@ function calcError(output, history) {
     }, err)
     
     // TODO : score memory history
-    let step = history[history.length - 1]
+    /*let step = history[history.length - 1]
     if (lastStep) {
         let memErr = 0
         let memTrg = inputs[inpCnt].code[inputs[inpCnt].code.length - 1]
@@ -70,11 +73,22 @@ function calcError(output, history) {
         //     memTrg
         // })
     }
-    lastStep = step
+    lastStep = step*/
 
     return err
 }
 
+function execute() {
+    try {
+        return brainfuck.run(code, inputs[inpCnt].code)
+    } catch (e) {
+        if(e instanceof ExecuteError) {
+            console.error(e, e.code, e.step)
+        }else{
+            throw e
+        }
+    }
+}
 /**
  * Find a command that has a lower error than the last or
  * set targetCommand to a random command.
@@ -88,7 +102,7 @@ function findTargetCommand() {
     for (let cmdCnt = 0; cmdCnt < cmds.length; cmdCnt++) {
         const cmd = cmds[cmdCnt]
         code.push(cmd.code)
-        let output = brainfuck.run(code, inputs[inpCnt].code)    
+        let output = execute()
         let history = brainfuck.interpreter.history
         let err = calcError(output, history)
         // console.log({err, cmd: cmd.code})
@@ -115,6 +129,7 @@ onmessage = function (message) {
     switch (command) {
         case 'evolve':
             if (!config) config = data.config
+            if (id === -1) id = data.id
             if (!inputs.length) inputs = data.inputs
             if (!brain) {
                 // init brain
@@ -128,20 +143,22 @@ onmessage = function (message) {
                     }
                 })
                 inpCnt++
-                break
+                return
             }
-            // activate brain
+            // check if end goals reached
             if (code.length === config.codeLen && inpCnt === inputs.length) {
                 postMessage({
                     command : 'done',
-                    data : code
+                    data : {code, id}
                 })
             }
             if (code.length >= config.codeLen) {
                 code = []
                 inpCnt++
-                if (inpCnt === inputs.length) inpCnt = 0
+                // wait at last input until the code generation is finished
+                if (inpCnt === inputs.length) inpCnt = inputs.length - 1 
             }
+            // activate brain
             brain.postMessage({
                 command : 'activate',
                 data : {input : inputs[inpCnt]}

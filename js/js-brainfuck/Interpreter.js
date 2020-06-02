@@ -1,4 +1,4 @@
-import { ExecuteError, TYPES } from './ExecuteError.js'
+import { ExecuteError } from './ExecuteError.js'
 
 class Interpreter {
     constructor () {
@@ -43,8 +43,7 @@ class Interpreter {
                         }
                     }
                     if (!found) {
-                        console.log(this.code)
-                        throw new ExecuteError('jump without loop', TYPES.JUMP_WITHOUT_LOOP)
+                        throw new ExecuteError(this.code, this.step, ExecuteError.JUMP_WITHOUT_LOOP)
                     }
                 }
                 break
@@ -65,8 +64,7 @@ class Interpreter {
                             break
                         }
                         if (!found) {
-                            console.log(this.code)
-                            throw new ExecuteError('loop without jump', TYPES.LOOP_WITHOUT_JUMP)
+                            throw new ExecuteError(this.code, this.step, ExecuteError.LOOP_WITHOUT_JUMP)
                         }
                     }
 
