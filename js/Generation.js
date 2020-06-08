@@ -14,19 +14,12 @@ class Generation extends Messanger {
     evolve () {
         let monkey = new Monkey2(this.monkeyConfig, this.monkeys.length, this.trainingSet.data)
         monkey.evolve()
+        monkey.on('update', this.monkeyOnUpdate, this)
         this.monkeys.push(monkey)        
-        /*let monkey = new Worker('./js/Monkey.js', { type: "module" })
-        monkey.onerror = this.onerror
-        monkey.onmessage = this.onmessage.bind(this)
-        monkey.postMessage({
-            command : 'evolve',
-            data : {
-                config : this.monkeyConfig,
-                id : this.monkeys.length,
-                inputs : this.trainingSet.data
-            }
-        })
-        this.monkeys.push(monkey)*/
+        
+    }
+    monkeyOnUpdate (message) {
+        console.log(message)
     }
     onerror (message) {
         console.log('generation error :', message, this)
