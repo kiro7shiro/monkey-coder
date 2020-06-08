@@ -4,8 +4,6 @@ class Interpreter {
     constructor () {
         this.code = []
         this.executions = 0
-        this.history = undefined
-        this.initalized = false
         this.input = []
         this.inPtr = 0
         this.jumps = [] 
@@ -15,8 +13,6 @@ class Interpreter {
         this.outPtr = 0
         this.running = false
         this.step = 0
-        
-        this.initalize()
     }
     execute (command) {
         switch (command.name) {
@@ -49,6 +45,7 @@ class Interpreter {
                 break
             case 'left':
                 this.memPtr -= command.repeat
+                // jump forward to the end, if pointer is less than zero.
                 if (this.memPtr < 0) this.memPtr = this.memory.length - 1
                 break
             case 'loop':
@@ -85,17 +82,9 @@ class Interpreter {
                 this.output[this.outPtr] = this.memory[this.memPtr]
                 break
         }
-        this.history.push({
-            command: command.code,
-            memory: this.memory
-        })
     }
     initalize () {
-        this.code = []
         this.executions = 0
-        this.history = []
-        this.initalized = true
-        this.input = []
         this.inPtr = 0
         this.jumps = [] 
         this.memory = []
@@ -105,8 +94,9 @@ class Interpreter {
         this.running = false
         this.step = 0
     }
-    run (code) {
+    run (code, input) {
         this.code = code
+        if (input) this.input = input
         if (!this.running) this.running = true
         for (let step = this.step; step < code.length; step++) {
             var command = code[step]

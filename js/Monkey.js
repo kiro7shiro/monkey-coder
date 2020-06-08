@@ -25,15 +25,14 @@ function brainOnMessage(message) {
     switch (command) {
         case 'makeCode':
             code.push(...brainfuck.decode(data))
-            let output = execute()
-            let history = brainfuck.interpreter.history
-            error = calcError(output, history)
+            let {errors, memory, output} = run()
+            error = calcError(errors, memory, output)
             findTargetCommand()
             break
         case 'evolve':
             postMessage({
                 command : 'update',
-                data: {code: code.join(''), error}
+                data: {code: code.join(''), error, inpCnt}
             })
             // redirect call saves code lines ;)
             onmessage(message)
@@ -49,7 +48,7 @@ function brainOnMessage(message) {
  * @param {Array} output 
  * @param {Array} history 
  */
-function calcError(output, history) {
+function calcError(errors, memory, output) {
     if (!output.length) output.push(0)
     let err = 0
     let target = inputs[inpCnt].vector[inputs[inpCnt].vector.length - 1]
@@ -57,36 +56,27 @@ function calcError(output, history) {
         return acc += Math.abs(target - (curr || 0))
     }, err)
     
-    // TODO : score memory history
-    /*let step = history[history.length - 1]
-    if (lastStep) {
-        let memErr = 0
-        let memTrg = inputs[inpCnt].code[inputs[inpCnt].code.length - 1]
-        if (!step.memory.length) step.memory.push(0)
-        memErr = step.memory.reduce((acc, curr) => {
-            return acc += Math.abs(memTrg - (curr || 0))
-        }, memErr)
-        // console.log({
-        //     last : lastStep.command + ' ' + lastStep.memory.toString(),
-        //     curr: step.command + ' ' + step.memory.toString(),
-        //     memErr,
-        //     memTrg
-        // })
-    }
-    lastStep = step*/
+    // TODO : score errors, memory
 
     return err
 }
 
-function execute() {
+// output : brain output, errors, lastStep
+function run() {
+    let errors = []
+    let memory = undefined
+    let output = []
     try {
-        return brainfuck.run(code, inputs[inpCnt].code)
+        output = brainfuck.run(code, inputs[inpCnt].code)
     } catch (e) {
         if(e instanceof ExecuteError) {
-            console.error(e, e.code, e.step)
+            errors.push(e)
         }else{
             throw e
         }
+    } finally {
+        memory = brainfuck.interpreter.memory
+        return {errors, memory, output}
     }
 }
 /**
@@ -102,9 +92,8 @@ function findTargetCommand() {
     for (let cmdCnt = 0; cmdCnt < cmds.length; cmdCnt++) {
         const cmd = cmds[cmdCnt]
         code.push(cmd.code)
-        let output = execute()
-        let history = brainfuck.interpreter.history
-        let err = calcError(output, history)
+        let {errors, memory, output} = run()
+        let err = calcError(errors, memory, output)
         // console.log({err, cmd: cmd.code})
         if (err < error) {
             targetCommand = cmd
@@ -135,33 +124,21 @@ onmessage = function (message) {
                 // init brain
                 brain = new Worker('./Brain.js')
                 brain.onmessage = brainOnMessage
-                brain.postMessage({
-                    command : 'activate',
-                    data : {
-                        config,
-                        input : inputs[inpCnt]
-                    }
-                })
-                inpCnt++
-                return
             }
             // check if end goals reached
-            if (code.length === config.codeLen && inpCnt === inputs.length) {
+            if (code.length === config.codeLen && inpCnt === inputs.length - 1) {
                 postMessage({
                     command : 'done',
-                    data : {code, id}
+                    data : {code: code.join(''), error, id}
                 })
-            }
-            if (code.length >= config.codeLen) {
+            }else if (code.length === config.codeLen) {
                 code = []
                 inpCnt++
-                // wait at last input until the code generation is finished
-                if (inpCnt === inputs.length) inpCnt = inputs.length - 1 
             }
             // activate brain
             brain.postMessage({
                 command : 'activate',
-                data : {input : inputs[inpCnt]}
+                data : {config, input : inputs[inpCnt]}
             })
             break
     }

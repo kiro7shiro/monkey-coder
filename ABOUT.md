@@ -38,3 +38,6 @@ For convience it provides functionallty to load Excel files.
 
 ## Normalized
 Reperesents normalized training data. Usally neural networks only process input values between 0 and 1. For that any human readable input has to be converted. This class provides an interface for setting up such conversion.
+
+### Normalized data in monkey coder
+In this program we took human readable strings as the input. For converting those strings into numbers we use the ascii table. Therefore we define the input scale between 32 and 127. As this range represents the readable charaters in the table. An input of 32 would be zero and an input of 127 would be one.

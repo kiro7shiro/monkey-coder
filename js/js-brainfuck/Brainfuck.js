@@ -1,4 +1,5 @@
 import { Interpreter } from "./Interpreter.js"
+import { ExecuteError } from "./ExecuteError.js"
 
 const LANGUAGE = {
     commands:[
@@ -111,8 +112,19 @@ class Brainfuck {
         var compiled = this.compile(code)
         this.current = compiled
         this.interpreter.initalize()
-        this.interpreter.input = input
-        return this.interpreter.run(compiled)
+        let output = undefined
+        let errors = []
+        try {
+            output = this.interpreter.run(compiled, input)    
+        } catch (e) {
+            if (e instanceof ExecuteError) {
+                errors.push(e)
+            }else{
+                throw e
+            }
+        }
+        let memory = this.interpreter.memory
+        return {errors, memory, output}
     }
 }
 
