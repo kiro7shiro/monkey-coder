@@ -1,5 +1,5 @@
 import { Messanger } from './js-events/Messanger.js'
-import { Monkey2 } from './Monkey2.js'
+import { Monkey } from './Monkey.js'
 
 class Generation extends Messanger {
     constructor (maxMonkeys, monkeyConfig, trainingSet) {
@@ -12,30 +12,18 @@ class Generation extends Messanger {
         this.trainingSet = trainingSet
     }
     evolve () {
-        let monkey = new Monkey2(this.monkeyConfig, this.monkeys.length, this.trainingSet.data)
+        let monkey = new Monkey(this.monkeyConfig, this.monkeys.length, this.trainingSet.data)
         monkey.evolve()
+        monkey.on('done', this.monkeyOnDone, this)
         monkey.on('update', this.monkeyOnUpdate, this)
         this.monkeys.push(monkey)        
         
     }
+    monkeyOnDone (message) {
+        console.log('monkey done', message)
+    }
     monkeyOnUpdate (message) {
-        console.log(message)
-    }
-    onerror (message) {
-        console.log('generation error :', message, this)
-    }
-    onmessage (message) {
-        let {command, data} = message.data
-        // console.log('generation', {command, data})
-        switch (command) {
-            case 'done':
-                this.post('update', data)
-                this.monkeys[0].terminate()
-                break
-            case 'update':
-                this.post('update', data)
-                break
-        }
+        console.log('monkey update', message)
     }
 }
 

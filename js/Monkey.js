@@ -1,146 +1,123 @@
-/**
- * Represents a monkey.
- */
 import { Brainfuck } from './js-brainfuck/Brainfuck.js'
-import { ExecuteError } from './js-brainfuck/ExecuteError.js'
+import { Messanger } from './js-events/Messanger.js'
 
-let brain = undefined
-let brainfuck = new Brainfuck()
-let code = []
-let config = undefined
-let error = 0
-let id = -1
-let inputs = []
-let inpCnt = 0
-let lastStep = undefined
-let targetCommand = undefined
+class Monkey extends Messanger {
+    constructor(config, id, inputs) {
+        super()
+        this.code = []
+        this.config = config
+        this.brain = new Worker('./js/Brain.js')
+        this.brainfuck = new Brainfuck()
+        this.error = 0
+        this.id = id
+        this.inputs = inputs
+        this.inpCnt = 0
+        this.lastMem = []
+        this.targetCommand = undefined
 
-/**
- * Callback for brains worker.
- * @param {Object} message 
- */
-function brainOnMessage(message) {
-    let {command, data} = message.data
-    // console.log('monkeys brain', {command, data})
-    switch (command) {
-        case 'makeCode':
-            code.push(...brainfuck.decode(data))
-            let {errors, memory, output} = run()
-            error = calcError(errors, memory, output)
-            findTargetCommand()
-            break
-        case 'evolve':
-            postMessage({
-                command : 'update',
-                data: {code: code.join(''), error, inpCnt}
-            })
-            // redirect call saves code lines ;)
-            onmessage(message)
-            break
-        default:
-            // TODO : make error handler
-            break
+        this.brain.onerror = this.brainOnError.bind(this)
+        this.brain.onmessage = this.brainOnMessage.bind(this)
     }
-}
-
-/**
- * Calculate the error of the current output
- * @param {Array} output 
- * @param {Array} history 
- */
-function calcError(errors, memory, output) {
-    if (!output.length) output.push(0)
-    let err = 0
-    let target = inputs[inpCnt].vector[inputs[inpCnt].vector.length - 1]
-    err = output.reduce((acc, curr) => {
-        return acc += Math.abs(target - (curr || 0))
-    }, err)
-    
-    // TODO : score errors, memory
-
-    return err
-}
-
-// output : brain output, errors, lastStep
-function run() {
-    let errors = []
-    let memory = undefined
-    let output = []
-    try {
-        output = brainfuck.run(code, inputs[inpCnt].code)
-    } catch (e) {
-        if(e instanceof ExecuteError) {
-            errors.push(e)
-        }else{
-            throw e
-        }
-    } finally {
-        memory = brainfuck.interpreter.memory
-        return {errors, memory, output}
+    brainOnError (error) {
+        console.log('brain error', error)
     }
-}
-/**
- * Find a command that has a lower error than the last or
- * set targetCommand to a random command.
- */
-function findTargetCommand() {
-    targetCommand = undefined
-    let lastCmd = code.splice(-1, 1)
-    let cmds = brainfuck.commands.filter(cmd => {
-        return cmd.code !== lastCmd[0]
-    })
-    for (let cmdCnt = 0; cmdCnt < cmds.length; cmdCnt++) {
-        const cmd = cmds[cmdCnt]
-        code.push(cmd.code)
-        let {errors, memory, output} = run()
-        let err = calcError(errors, memory, output)
-        // console.log({err, cmd: cmd.code})
-        if (err < error) {
-            targetCommand = cmd
-            error = err
-        }
-        code.pop()
-    }
-    code.push(...lastCmd)
-    if (!targetCommand) targetCommand = brainfuck.random()
-    brain.postMessage({
-        command : 'propagate',
-        data : targetCommand
-    })
-}
-
-/**
- * Callback for monkeys worker.
- */
-onmessage = function (message) {
-    let {command, data} = message.data
-    // console.log('monkey', {command, data})
-    switch (command) {
-        case 'evolve':
-            if (!config) config = data.config
-            if (id === -1) id = data.id
-            if (!inputs.length) inputs = data.inputs
-            if (!brain) {
-                // init brain
-                brain = new Worker('./Brain.js')
-                brain.onmessage = brainOnMessage
-            }
-            // check if end goals reached
-            if (code.length === config.codeLen && inpCnt === inputs.length - 1) {
-                postMessage({
-                    command : 'done',
-                    data : {code: code.join(''), error, id}
+    brainOnMessage (message) {
+        let {command, data} = message.data
+        // console.log('monkeys brain', {command, data})
+        switch (command) {
+            case 'makeCode':
+                this.code.push(...this.brainfuck.decode(data))
+                let input = this.inputs[this.inpCnt].code
+                let {errors, memory, output} = this.brainfuck.run(this.code, input)
+                this.error = this.calcError(errors, memory, output)
+                this.targetCommand = this.findTargetCommand()
+                console.log({
+                    error : this.error,
+                    trgCmd: this.targetCommand.code
                 })
-            }else if (code.length === config.codeLen) {
-                code = []
-                inpCnt++
-            }
-            // activate brain
-            brain.postMessage({
-                command : 'activate',
-                data : {config, input : inputs[inpCnt]}
-            })
-            break
+                this.brain.postMessage({
+                    command : 'propagate',
+                    data : this.targetCommand
+                })
+                break
+            case 'evolve':
+                this.post('update', {
+                    code: this.code.join(''),
+                    error: this.error,
+                    inpCnt: this.inpCnt
+                })
+                this.evolve()
+                break
+            default:
+                // TODO : make error handler
+                break
+        }
     }
-    
+    calcError(errors, memory, output) {
+        // console.log({errors, memory, output})
+        let memDiff = 0
+        let error = 0
+        let target = this.inputs[this.inpCnt].vector[this.inputs[this.inpCnt].vector.length - 1]
+        let memTrg = this.inputs[this.inpCnt].code[this.inputs[this.inpCnt].code.length - 1]
+        // errors
+        if (errors.length) error += errors.length * 0.1
+        // memory
+        if (!memory || !memory.length) memory = [0]
+        memDiff = memory.reduce((acc, curr) => {
+            return acc += Math.abs(memTrg - (curr || 0))
+        }, memDiff)
+        // output
+        if (!output || !output.length) output = [0]
+        error = output.reduce((acc, curr) => {
+            return acc += Math.abs(target - (curr || 0))
+        }, error)
+        error += memDiff
+        return error
+    }
+    evolve () {
+        // check if end goals reached
+        if (this.code.length === this.config.codeLen && this.inpCnt === this.inputs.length - 1) {
+            this.post('done', {
+                code: this.code.join(''),
+                error: this.error,
+                id: this.id
+            })
+            return
+        }else if (this.code.length === this.config.codeLen) {
+            this.code = []
+            this.inpCnt++
+        }
+        // activate brain
+        this.brain.postMessage({
+            command : 'activate',
+            data : {
+                config: this.config,
+                input : this.inputs[this.inpCnt]
+            }
+        })
+    }
+    findTargetCommand () {
+        let trgCmd = undefined
+        let lastCmd = this.code.splice(-1, 1)
+        let cmds = this.brainfuck.commands.filter(cmd => {
+            return cmd.code !== lastCmd[0]
+        })
+        for (let cmdCnt = 0; cmdCnt < cmds.length; cmdCnt++) {
+            const cmd = cmds[cmdCnt]
+            this.code.push(cmd.code)
+            let input = this.inputs[this.inpCnt].code
+            let {errors, memory, output} = this.brainfuck.run(this.code, input)
+            let err = this.calcError(errors, memory, output)
+            if (err < this.error) {
+                trgCmd = cmd
+                this.error = err
+            }
+            this.code.pop()
+        }
+        this.code.push(...lastCmd)
+        if (!trgCmd) trgCmd = this.brainfuck.random()
+        return trgCmd
+    }
 }
+
+export { Monkey }
