@@ -9,7 +9,7 @@ class MonkeyCoder{
     constructor (view) {
         this.autoEvolve = true
         this.maxGenerations = 64
-        this.maxMonkeys = 12
+        this.maxMonkeys = 32
         this.generations = []
         this.monkeyConfig = {
             codeLen : 16,
@@ -81,12 +81,50 @@ class MonkeyCoder{
         if (this.generations.length < this.maxGenerations) {
             // TODO : reproduce elite
             var next = new Generation(this.maxMonkeys, this.monkeyConfig, this.trainingSets[0])
+            next.on('done', this.generationOnDone, this)
             next.on('update', this.generationOnUpdate, this)
             next.evolve()
             this.generations.push(next)
         }else{
             this.status = 'idle'
         }
+    }
+    /**
+     * Callback for generation on done
+     * @param {*} message 
+     */
+    generationOnDone (elite) {
+        let rows = ''
+        for (let eltCnt = 0; eltCnt < elite.length; eltCnt++) {
+            const monkey = elite[eltCnt]
+            rows += '<tr><td>' + monkey.id + '</td>'
+            rows += '<td>' + monkey.code.join('') + '</td>'
+            rows += '<td>' + monkey.error + '</td></tr>'
+        }
+        this.view.post('update', {
+            id : 'eliteMonkeys',
+            val : rows
+        })
+    }
+    /**
+     * Callback for generation on update
+     * @param {*} message 
+     */
+    generationOnUpdate (message) {
+        this.progress++
+        let icnt = this.trainingSets[0].data.length * this.maxMonkeys
+        let prc = this.progress / icnt * 100
+        let monkey = this.generations[0].monkeys[message]
+        //console.log('generation update', monkey.code.join(''), monkey.error)
+        console.log(`generation update:  id - ${message} code - ${monkey.code.join('')} error - ${monkey.error}`)
+        this.view.post('update', {
+            id : 'monkeyBar',
+            val : prc.toFixed(0),
+            css : {
+                width : prc + '%'
+            }
+        })
+        if (prc === 100) this.status = 'idle'
     }
     /**
      * Event handler for selectInputsButton change event.
@@ -112,20 +150,7 @@ class MonkeyCoder{
             this.status = 'idle'
         }
     }
-    generationOnUpdate (message) {
-        this.progress++
-        let icnt = this.trainingSets[0].data.length * this.maxMonkeys
-        let prc = this.progress / icnt * 100
-        console.log('generation update', message, prc)
-        this.view.post('update', {
-            id : 'monkeyBar',
-            val : prc.toFixed(0),
-            css : {
-                width : prc + '%'
-            }
-        })
-        if (prc === 100) this.status = 'idle'
-    }
+
 }
 
 export { MonkeyCoder }

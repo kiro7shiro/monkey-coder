@@ -20,18 +20,18 @@ class Generation extends Messanger {
             this.monkeys.push(monkey)                
         }
     }
-    monkeyOnDone (message) {
+    monkeyOnDone (id) {
         //console.log('monkey done', message)
         this.done++
         if(this.done === this.maxMonkeys) {
             this.selectElite()
-            console.log(this.elite)
+            this.post('done', this.elite)
         }
     }
-    monkeyOnUpdate (message) {
-        //console.log('monkey update', message)
-        if (message.code.length === this.monkeyConfig.codeLen) {
-            this.post('update', message)
+    monkeyOnUpdate (id) {
+        let monkey = this.monkeys[id]
+        if (monkey.code.length === this.monkeyConfig.codeLen) {
+            this.post('update', id)
         }
     }
     selectElite () {

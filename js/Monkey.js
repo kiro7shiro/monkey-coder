@@ -38,21 +38,12 @@ class Monkey extends Messanger {
                 })
                 break
             case 'evolve':
-                this.post('update', {
-                    code: this.code.join(''),
-                    error: this.error,
-                    inpCnt: this.inpCnt,
-                    id: this.id
-                })
+                this.post('update', this.id)
                 this.evolve()
                 break
             case 'json':
                 this.brain.json = data
-                this.post('done', {
-                    code: this.code.join(''),
-                    error: this.error,
-                    id: this.id
-                })
+                this.post('done', this.id)
                 break
         }
     }

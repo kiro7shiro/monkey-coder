@@ -12,7 +12,8 @@ view.statusBar.draw = function(data) {
     this.innerHTML = data.val || coder.status
 }
 view.eliteMonkeys.draw = function (data) {
-    
+    this.tBodies[0].innerHTML = data.val
+    //console.log(this.tBodies[0].innerHTML)
 }
 view.monkeyBar.draw = function (data) {
     this.innerHTML = data.val + '%'
