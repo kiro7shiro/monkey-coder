@@ -15,7 +15,8 @@ view.eliteMonkeys.draw = function (data) {
     
 }
 view.monkeyBar.draw = function (data) {
-    
+    this.innerHTML = data.val + '%'
+    this.style.width = data.css.width
 }
 
 window.coder = coder

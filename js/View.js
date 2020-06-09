@@ -42,7 +42,6 @@ class View extends Messanger {
     update (data) {
         if (!data) return
         let {id, val, css} = data
-        console.log('view update', {id, val, css})
         if (this[id].draw) this[id].draw({val, css})
     }
 }

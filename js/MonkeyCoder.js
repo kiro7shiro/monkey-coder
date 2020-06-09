@@ -18,6 +18,7 @@ class MonkeyCoder{
             minError : 0.03
         }
         this.trainingSets = []
+        this.progress = 0
         this._status = 'idle'
 
         this.view = view
@@ -80,7 +81,7 @@ class MonkeyCoder{
         if (this.generations.length < this.maxGenerations) {
             // TODO : reproduce elite
             var next = new Generation(this.maxMonkeys, this.monkeyConfig, this.trainingSets[0])
-            next.on('update', this.update, this)
+            next.on('update', this.generationOnUpdate, this)
             next.evolve()
             this.generations.push(next)
         }else{
@@ -111,8 +112,19 @@ class MonkeyCoder{
             this.status = 'idle'
         }
     }
-    update (message) {
-        console.log('generation update', message)
+    generationOnUpdate (message) {
+        this.progress++
+        let icnt = this.trainingSets[0].data.length * this.maxMonkeys
+        let prc = this.progress / icnt * 100
+        console.log('generation update', message, prc)
+        this.view.post('update', {
+            id : 'monkeyBar',
+            val : prc.toFixed(0),
+            css : {
+                width : prc + '%'
+            }
+        })
+        if (prc === 100) this.status = 'idle'
     }
 }
 
