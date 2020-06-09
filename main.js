@@ -14,5 +14,8 @@ view.statusBar.draw = function(data) {
 view.eliteMonkeys.draw = function (data) {
     
 }
+view.monkeyBar.draw = function (data) {
+    
+}
 
 window.coder = coder

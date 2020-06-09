@@ -20,6 +20,7 @@ class Monkey extends Messanger {
     }
     brainOnError (error) {
         console.log('brain error', error)
+        throw new Error('brain error')
     }
     brainOnMessage (message) {
         let {command, data} = message.data
@@ -31,10 +32,6 @@ class Monkey extends Messanger {
                 let {errors, memory, output} = this.brainfuck.run(this.code, input)
                 this.error = this.calcError(errors, memory, output)
                 this.targetCommand = this.findTargetCommand()
-                console.log({
-                    error : this.error,
-                    trgCmd: this.targetCommand.code
-                })
                 this.brain.postMessage({
                     command : 'propagate',
                     data : this.targetCommand
@@ -44,12 +41,18 @@ class Monkey extends Messanger {
                 this.post('update', {
                     code: this.code.join(''),
                     error: this.error,
-                    inpCnt: this.inpCnt
+                    inpCnt: this.inpCnt,
+                    id: this.id
                 })
                 this.evolve()
                 break
-            default:
-                // TODO : make error handler
+            case 'json':
+                this.brain.json = data
+                this.post('done', {
+                    code: this.code.join(''),
+                    error: this.error,
+                    id: this.id
+                })
                 break
         }
     }
@@ -77,11 +80,7 @@ class Monkey extends Messanger {
     evolve () {
         // check if end goals reached
         if (this.code.length === this.config.codeLen && this.inpCnt === this.inputs.length - 1) {
-            this.post('done', {
-                code: this.code.join(''),
-                error: this.error,
-                id: this.id
-            })
+            this.brain.postMessage({command : 'getJSON'})
             return
         }else if (this.code.length === this.config.codeLen) {
             this.code = []

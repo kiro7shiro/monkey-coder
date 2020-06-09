@@ -23,6 +23,10 @@ onmessage = function(message) {
             brain.propagate(config.learningRate, target)
             postMessage({command : 'evolve'})
             break
+        case 'getJSON':
+            let json = brain.toJSON()
+            postMessage({command : 'json', data : json})
+            break
     }
     
 }

@@ -9,7 +9,7 @@ class MonkeyCoder{
     constructor (view) {
         this.autoEvolve = true
         this.maxGenerations = 64
-        this.maxMonkeys = 32
+        this.maxMonkeys = 12
         this.generations = []
         this.monkeyConfig = {
             codeLen : 16,
@@ -111,8 +111,8 @@ class MonkeyCoder{
             this.status = 'idle'
         }
     }
-    update (data) {
-        console.log('coder update', data)
+    update (message) {
+        console.log('generation update', message)
     }
 }
 
