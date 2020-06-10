@@ -18,7 +18,6 @@ class MonkeyCoder{
             minError : 0.03
         }
         this.trainingSets = []
-        this.progress = 0
         this._status = 'idle'
 
         this.view = view
@@ -79,8 +78,12 @@ class MonkeyCoder{
     evolve () {
         if (!this.trainingSets.length) return
         if (this.generations.length < this.maxGenerations) {
-            // TODO : reproduce elite
-            var next = new Generation(this.maxMonkeys, this.monkeyConfig, this.trainingSets[0])
+            let ancestors = undefined
+            if (this.generations.length) {
+                ancestors = this.generations[this.generations.length - 1].elite
+            }
+            var next = new Generation(this.maxMonkeys, this.monkeyConfig, this.trainingSets[0], ancestors)
+            next.id = this.generations.length
             next.on('done', this.generationOnDone, this)
             next.on('update', this.generationOnUpdate, this)
             next.evolve()
@@ -111,20 +114,12 @@ class MonkeyCoder{
      * @param {*} message 
      */
     generationOnUpdate (message) {
-        this.progress++
-        let icnt = this.trainingSets[0].data.length * this.maxMonkeys
-        let prc = this.progress / icnt * 100
-        let monkey = this.generations[0].monkeys[message]
-        //console.log('generation update', monkey.code.join(''), monkey.error)
-        console.log(`generation update:  id - ${message} code - ${monkey.code.join('')} error - ${monkey.error}`)
+        let best = this.generations[message].best
+        let bestTxt = `code - ${best.code.join('')} error - ${best.error}`
         this.view.post('update', {
-            id : 'monkeyBar',
-            val : prc.toFixed(0),
-            css : {
-                width : prc + '%'
-            }
+            id : 'bestCode',
+            val : bestTxt
         })
-        if (prc === 100) this.status = 'idle'
     }
     /**
      * Event handler for selectInputsButton change event.
@@ -132,7 +127,6 @@ class MonkeyCoder{
      */
     selectInputsButtonChange (event) {
         event.stopPropagation()
-        console.log('selectInputsButtonChange', event)
         this.trainingSets.push(new TrainingSet(event.target.files[0], {min : 32, max : 127}))
     }
     /**
@@ -141,7 +135,6 @@ class MonkeyCoder{
      */
     startButtonClick (event) {
         event.stopPropagation()
-        console.log('startButtonClick', event)
         if (this.status === 'idle') {
             this.status = 'evolve'
             this.assignConfig(this.view.readForm('monkeyConfigForm'))
