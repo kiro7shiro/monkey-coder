@@ -47,12 +47,9 @@ class Generation extends Messanger {
     }
     reproduce (ancestors) {
         let breed = []
-        let prtCnt = 0
         for (let mnkCnt = 0; mnkCnt < this.maxMonkeys; mnkCnt++) {
-            let a = ancestors[prtCnt].brain.json
-            let b = ancestors[prtCnt + 1].brain.json
-            prtCnt++
-            if (prtCnt + 2 > ancestors.length) prtCnt = 0
+            let a = ancestors[Math.floor(Math.random() * ancestors.length)].brain.json
+            let b = ancestors[Math.floor(Math.random() * ancestors.length)].brain.json
             this.monkeyConfig.parents = [a, b]
             let monkey = new Monkey(this.monkeyConfig, this.monkeys.length, this.trainingSet.data)
             monkey.id = breed.length
@@ -66,7 +63,7 @@ class Generation extends Messanger {
         this.monkeys.sort((a, b) => {
             return a.error - b.error
         })
-        return this.monkeys.slice(0, 10)
+        return this.monkeys.slice(0, this.monkeys.length / 2)
     }
     spawn () {
         let breed = []

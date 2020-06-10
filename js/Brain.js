@@ -11,8 +11,10 @@ onmessage = function(message) {
         case 'activate':
             if (!config) config = data.config
             if (config.parents) {
-                let a = config.parents[0]
-                let b = config.parents[1]
+                let a = config.parents[Math.floor(Math.random() * config.parents.length)]
+                // let b = config.parents[1]
+                let b = new synaptic.Architect.Perceptron(...config.layers).toJSON()
+                //brain = synaptic.Network.fromJSON(crossOver(a, b), Math.floor(Math.random() * 1))
                 brain = synaptic.Network.fromJSON(crossOver(a, b))
             }
             if (!brain) {

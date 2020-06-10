@@ -123,7 +123,7 @@ class MonkeyCoder{
         let generation = this.generations[id]
         let prc = generation.monkeys.reduce((acc, curr) => {
             return acc += curr.inpCnt / generation.trainingSet.data.length / generation.monkeys.length
-        },this.generations.length - 1)
+        }, this.generations.length - 1)
         prc /= this.maxGenerations / 100
         this.view.post('update', {
             id : 'monkeyBar',
