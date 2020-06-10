@@ -10,6 +10,11 @@ onmessage = function(message) {
     switch (command) {
         case 'activate':
             if (!config) config = data.config
+            if (config.parents) {
+                let a = config.parents[0]
+                let b = config.parents[1]
+                brain = synaptic.Network.fromJSON(crossOver(a, b))
+            }
             if (!brain) {
                 brain = new synaptic.Architect.Perceptron(...config.layers)
             }
@@ -37,7 +42,7 @@ crossOver = function(network1, network2, ratio) {
     let ratioPartA = ratio
     let ratioPartB = 1 - ratio
     
-    let ntk1 = Network.fromJSON(network1)
+    let ntk1 = synaptic.Network.fromJSON(network1)
     // Create a network, this will be the result of the two networks
     let offspring = ntk1.clone()
     let inputCount = offspring.inputs()

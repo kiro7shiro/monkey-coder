@@ -16,7 +16,7 @@ class Generation extends Messanger {
 
         if (this.ancestors) {
             // reproduce
-
+            this.monkeys = this.reproduce(this.ancestors)
         }else{
             this.monkeys = this.spawn()
         }
@@ -26,10 +26,13 @@ class Generation extends Messanger {
     }
     monkeyOnDone (id) {
         this.done++
-        if(this.done === this.maxMonkeys) {
+        if(this.done === this.monkeys.length) {
             this.elite = this.selectElite()
             this.best = this.elite[0]
-            this.post('done', this.elite)
+            this.post('done', {
+                id: this.id,
+                elite: this.elite
+            })
         }
     }
     monkeyOnUpdate (id) {
@@ -42,8 +45,15 @@ class Generation extends Messanger {
     }
     reproduce (ancestors) {
         let breed = []
+        let prtCnt = 0
         for (let mnkCnt = 0; mnkCnt < this.maxMonkeys; mnkCnt++) {
+            let a = ancestors[prtCnt].brain.json
+            let b = ancestors[prtCnt + 1].brain.json
+            prtCnt++
+            if (prtCnt + 2 > ancestors.length) prtCnt = 0
+            this.monkeyConfig.parents = [a, b]
             let monkey = new Monkey(this.monkeyConfig, this.monkeys.length, this.trainingSet.data)
+            monkey.id = breed.length
             monkey.on('done', this.monkeyOnDone, this)
             monkey.on('update', this.monkeyOnUpdate, this)
             breed.push(monkey)                
@@ -60,6 +70,7 @@ class Generation extends Messanger {
         let breed = []
         for (let mnkCnt = 0; mnkCnt < this.maxMonkeys; mnkCnt++) {
             let monkey = new Monkey(this.monkeyConfig, this.monkeys.length, this.trainingSet.data)
+            monkey.id = breed.length
             monkey.on('done', this.monkeyOnDone, this)
             monkey.on('update', this.monkeyOnUpdate, this)
             breed.push(monkey)                

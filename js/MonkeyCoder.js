@@ -96,11 +96,12 @@ class MonkeyCoder{
      * Callback for generation on done
      * @param {*} message 
      */
-    generationOnDone (elite) {
+    generationOnDone (message) {
+        let {id, elite} = message
         let rows = ''
         for (let eltCnt = 0; eltCnt < elite.length; eltCnt++) {
             const monkey = elite[eltCnt]
-            rows += '<tr><td>' + monkey.id + '</td>'
+            rows += '<tr><td>' + id + '.' + monkey.id + '</td>'
             rows += '<td>' + monkey.code.join('') + '</td>'
             rows += '<td>' + monkey.error + '</td></tr>'
         }
@@ -108,6 +109,7 @@ class MonkeyCoder{
             id : 'eliteMonkeys',
             val : rows
         })
+        this.evolve()
     }
     /**
      * Callback for generation on update

@@ -43,6 +43,7 @@ class Monkey extends Messanger {
                 break
             case 'json':
                 this.brain.json = data
+                this.brain.terminate()
                 this.post('done', this.id)
                 break
         }
