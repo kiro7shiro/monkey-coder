@@ -18,7 +18,7 @@ view.eliteMonkeys.draw = function (data) {
     this.tBodies[0].innerHTML = data.val
 }
 view.monkeyBar.draw = function (data) {
-    this.innerHTML = data.val + '%'
+    this.innerHTML = data.val
     this.style.width = data.css.width
 }
 

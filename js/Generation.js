@@ -15,7 +15,6 @@ class Generation extends Messanger {
         this.trainingSet = trainingSet
 
         if (this.ancestors) {
-            // reproduce
             this.monkeys = this.reproduce(this.ancestors)
         }else{
             this.monkeys = this.spawn()
@@ -40,8 +39,11 @@ class Generation extends Messanger {
         if (monkey.code.length === this.monkeyConfig.codeLen) {
             this.elite = this.selectElite()
             this.best = this.elite[0]
-            this.post('update', this.id)
         }
+        this.post('update', {
+            id : this.id,
+            mnkId : id
+        })
     }
     reproduce (ancestors) {
         let breed = []

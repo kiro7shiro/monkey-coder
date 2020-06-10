@@ -17,6 +17,9 @@ class MonkeyCoder{
             learningRate : 0.2,
             minError : 0.03
         }
+        this.progress = {
+            code : 0
+        }
         this.trainingSets = []
         this._status = 'idle'
 
@@ -116,12 +119,27 @@ class MonkeyCoder{
      * @param {*} message 
      */
     generationOnUpdate (message) {
-        let best = this.generations[message].best
-        let bestTxt = `code - ${best.code.join('')} error - ${best.error}`
+        let {id , mnkId} = message
+        let generation = this.generations[id]
+        let prc = generation.monkeys.reduce((acc, curr) => {
+            return acc += curr.inpCnt / generation.trainingSet.data.length / generation.monkeys.length
+        },this.generations.length - 1)
+        prc /= this.maxGenerations / 100
         this.view.post('update', {
-            id : 'bestCode',
-            val : bestTxt
+            id : 'monkeyBar',
+            val : prc.toFixed(2) + '%',
+            css : {
+                width : prc + '%'
+            }
         })
+        let best = generation.best
+        if (best) {
+            let bestTxt = `code - ${best.code.join('')} error - ${best.error}`
+            this.view.post('update', {
+                id : 'bestCode',
+                val : bestTxt
+            })
+        }
     }
     /**
      * Event handler for selectInputsButton change event.
